@@ -9,8 +9,9 @@ task :create_tables_if_not_exist do
     db.exec('CREATE TABLE doctors (
              id SERIAL PRIMARY KEY NOT NULL,
              name VARCHAR NOT NULL,
-             CRM VARCHAR,
-             CRM_STATE VARCHAR
+             crm VARCHAR NOT NULL,
+             crm_state VARCHAR NOT NULL,
+             email VARCHAR NOT NULL
             );')
     db.exec('CREATE TABLE test_types (
              id SERIAL PRIMARY KEY NOT NULL,
@@ -22,10 +23,16 @@ task :create_tables_if_not_exist do
             name VARCHAR NOT NULL,
             cpf VARCHAR NOT NULL,
             email VARCHAR NOT NULL,
-            birthday DATE
+            address VARCHAR NOT NULL,
+            city VARCHAR NOT NULL,
+            state VARCHAR NOT NULL,
+            birthday DATE NOT NULL
            );')
     db.exec('CREATE TABLE tests (
             id SERIAL PRIMARY KEY NOT NULL,
+            token VARCHAR NOT NULL,
+            result INT NOT NULL,
+            date DATE NOT NULL,
             patient_id INT NOT NULL REFERENCES patients(id),
             doctor_id INT NOT NULL REFERENCES doctors(id),
             test_type_id INT NOT NULL REFERENCES test_types(id)
