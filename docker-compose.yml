@@ -1,0 +1,21 @@
+services:
+  postgres-server:
+    image: postgres
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    networks: 
+      - 'rebase-labs'
+    
+  ruby-sinatra:
+    image: ruby
+    command: bash -c "gem install rack sinatra puma pg && rake create_tables_if_not_exist && ruby server.rb"
+    working_dir: /app
+    networks:
+      - 'rebase-labs'
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+
+networks:
+  rebase-labs:
