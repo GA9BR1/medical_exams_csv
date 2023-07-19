@@ -31,10 +31,14 @@ task :create_tables_if_not_exist do
     db.exec('CREATE TABLE tests (
             id SERIAL PRIMARY KEY NOT NULL,
             token VARCHAR NOT NULL,
-            result INT NOT NULL,
             date DATE NOT NULL,
             patient_id INT NOT NULL REFERENCES patients(id),
-            doctor_id INT NOT NULL REFERENCES doctors(id),
+            doctor_id INT NOT NULL REFERENCES doctors(id)
+            );')
+    db.exec('CREATE TABLE test_items (
+            id SERIAL PRIMARY KEY NOT NULL,
+            result INT NOT NULL,
+            test_id INT NOT NULL REFERENCES tests(id),
             test_type_id INT NOT NULL REFERENCES test_types(id)
            );')
   end

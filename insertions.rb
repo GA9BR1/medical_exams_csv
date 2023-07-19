@@ -37,13 +37,25 @@ class Insertions
       end
 
       test_not_exists = db.exec('SELECT * FROM tests WHERE token = $1', [object['token resultado exame']]).num_tuples.zero?
+      test_type_id = db.exec('SELECT id FROM test_types WHERE name = $1', [object['tipo exame']])[0]['id'].to_i
       if test_not_exists
         patient_id = db.exec('SELECT id FROM patients WHERE cpf = $1', [object['cpf']])[0]['id'].to_i
         doctor_id = db.exec('SELECT id FROM doctors WHERE crm = $1', [object['crm médico']])[0]['id'].to_i
-        test_type_id = db.exec('SELECT id FROM test_types WHERE name = $1', [object['tipo exame']])[0]['id'].to_i
+        db.exec('INSERT INTO tests (token, patient_id, doctor_id, date) VALUES ($1, $2, $3, $4)',
+                [object['token resultado exame'], patient_id, doctor_id, object['data exame']])
+        test_id = db.exec('SELECT * FROM tests WHERE token = $1', [object['token resultado exame']])[0]['id'].to_i
 
-        db.exec('INSERT INTO tests (token, result, patient_id, doctor_id, test_type_id, date) VALUES ($1, $2, $3, $4, $5, $6)',
-                [object['token resultado exame'], object['resultado tipo exame'], patient_id, doctor_id, test_type_id, object['data exame']])
+        db.exec('INSERT INTO test_items (result, test_type_id, test_id) VALUES ($1, $2, $3)',
+                [object['resultado tipo exame'], test_type_id, test_id])
+      else
+        test_id = db.exec('SELECT * FROM tests WHERE token = $1', [object['token resultado exame']])[0]['id'].to_i
+        test_item_not_exists = db.exec('SELECT * FROM test_items ti
+                               JOIN test_types tt ON ti.test_type_id = tt.id
+                               WHERE ti.test_id = $1 AND tt.name = $2', [test_id, object['tipo exame']]).num_tuples.zero?
+        if test_item_not_exists
+          db.exec('INSERT INTO test_items (result, test_type_id, test_id) VALUES ($1, $2, $3)',
+                [object['resultado tipo exame'], test_type_id, test_id])
+        end
       end
     end
   end
