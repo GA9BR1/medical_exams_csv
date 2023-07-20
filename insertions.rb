@@ -20,7 +20,7 @@ class Insertions
         patient_id = db.exec('INSERT INTO patients (name, cpf, email, birthday, address, city, state) VALUES ($1, $2, $3, $4, $5, $6, $7)',
                      [object['nome paciente'], object['cpf'], object['email paciente'], 
                      object['data nascimento paciente'], object['endereço/rua paciente'],
-                     object['cidade paciente'], object['estado paciente']])
+                     object['cidade paciente'], object['estado patiente']])
       end
 
       doctor_not_exists = db.exec('SELECT * FROM doctors WHERE crm = $1', [object['crm médico']]).num_tuples.zero?
