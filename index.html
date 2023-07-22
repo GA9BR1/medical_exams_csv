@@ -1,6 +1,114 @@
-<head></head>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RebaseLabs</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="logo.css">
+  <link rel="stylesheet" href="import_input.css">
+  <link rel="stylesheet" href="import_button.css">
+</head>
 <body>
-  <h1>Music genres</h1>
-  <ul></ul>
+  <div id="app" v-cloak>
+    <nav class="navbar">
+      <div class="frame">
+        <span class="text">RebaseLabs</span>
+        <img src="umbrella_logo.png" alt="RebaseLabs Logo" class="img">
+      </div>
+    </nav>
+    <main>
+      <div class="logo-background"></div>
+      <div class="import-div">
+        <div class="import-send-div">
+          <input name="csv_upload" type="file" accept=".csv" v-on:change="handleFileUpload" id="upload-input">
+          <label for="upload-input" id="custom-label">Importar arquivo CSV</label>
+          <button class="import-button" v-on:click="sendFile">Enviar Arquivo</button>
+        </div>
+        <span class="not-selected-csv-text" v-if="!selected">
+          Não há nenhum arquivo selecionado <img class="alert-icon" src="aviso.png" alt="Ícone de alerta">
+        </span>
+        <span class="selected-csv-text" v-else >
+          <span v-if="!response_message">{{file.name}}</span> <span v-if="waiting_response"><img class="waiting-gif" src="loading.gif" alt="Esperando resposta do servidor gif"></span>
+          <span class="response-message" v-if="response_message && !waiting_response">{{response_message}}
+            <span v-if="response_message.split(' ').includes('erro')"><img class="alert-icon" src="aviso.png" alt="Ícone de alerta"></span> 
+          </span>
+        </span>
+      </div>
+      <section class="tests-section">
+        <div class="input-div">
+          <h1>Exames</h1>
+          <input class="input-search" type="text" v-model="searchText" placeholder="Token, CPF, data do resultado">
+        </div>
+        <ul class="tests-list"> 
+          <li v-for="test, index in listResult">
+            <div class="test-card">
+              <div :id="'test-card-' + index" class="test-card-simple-closed">
+                <dl>
+                  <div class="card-text-div">
+                    <dt>Token</dt>
+                    <dd>{{test['result_token']}}</dd>
+                  </div>
+                  <div class="card-text-div">
+                    <dt>Nome</dt>
+                    <dd>{{test['name']}}</dd>
+                  </div>
+                  <div class="card-text-div">
+                    <dt>CPF</dt>
+                    <dd>{{test['cpf']}}</dd>
+                  </div>
+                  <div class="card-text-div">
+                    <dt>Data do resultado</dt>
+                    <dd>{{test['result_date'].split('-').reverse().join('/')}}</dd>
+                  </div>
+                </dl>
+                <span :id="'details-button-' + index" class="more-details" v-on:click="testDetails">Mais detalhes</span>
+              </div>
+              <div :id="'details-div-' + index" class="test-details hidden">
+                <dl class="details-dl">
+                  <div class="card-text-div">
+                    <dt>E-mail</dt>
+                    <dd>{{test['email']}}</dd>
+                  </div>
+                  <div class="card-text-div">
+                    <dt>Data de nascimento</dt>
+                    <dd>{{test['birthday'].split('-').reverse().join('/')}}</dd>
+                  </div>
+                  <div class="card-text-div">
+                    <dt>Médico(a)</dt>
+                    <dd>{{test['doctor']['name']}} - {{test['doctor']['crm']}}-{{test['doctor']['crm_state']}}</dd>
+                  </div>
+                </dl>
+                <div>
+                  <h3>Resultados do exame</h3>
+                  <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Referência</th>
+                            <th>Resultado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="tt in test['tests']">
+                            <td>{{tt['type']}}</td>
+                            <td class="center-td">{{tt['limits']}}</td>
+                            <td class="center-td">{{tt['result']}}</td>
+                        </tr>
+                    </tbody>
+                  </table> 
+                </div> 
+              </div>
+            </div>
+          </li>
+          <h2 v-if="listResult.length === 0 && !loading_results" v-cloak>
+            Nenhum exame encontrado.
+          </h2>
+        </ul>
+      </section>
+    </main>
+  </div>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="main.js"></script>
 </body>
+</html>

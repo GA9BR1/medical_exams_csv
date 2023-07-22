@@ -2,9 +2,9 @@ require 'pg'
 require 'json'
 require 'debug'
 class Insertions
-  def self.insert_csv_data
+  def self.insert_csv_data(file)
     db = PG.connect(host: 'postgres-server', user: 'postgres')
-    data = self.read_and_parse_csv_to_json
+    data = self.read_and_parse_csv_to_json(file)
 
     data.each do |object|
       self.insert_patient_if_not_exists(object, db)
@@ -12,12 +12,14 @@ class Insertions
       self.insert_test_type_if_not_exists(object, db)
       self.insert_test_and_test_items_if_not_exist(object, db)
     end
+
+    puts 'AAAAAAAAAAAAAAAAA'
   end
 
   private
   
-    def self.read_and_parse_csv_to_json
-      rows = CSV.read("./data.csv", col_sep: ';')
+    def self.read_and_parse_csv_to_json(file)
+      rows = CSV.read(file, col_sep: ';')
       columns = rows.shift
       json = rows.map do |row|
                 row.each_with_object({}).with_index do |(cell, acc), idx|

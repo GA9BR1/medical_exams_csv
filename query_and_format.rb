@@ -33,6 +33,7 @@ class QueryAndFormat
       JOIN test_items ti ON ti.test_id = t.id
       JOIN test_types tt ON ti.test_type_id = tt.id
       GROUP BY t.id, t.date, p.cpf, p.name, p.email, p.birthday, d.crm, d.crm_state, d.name, tt.name, tt.limits, ti.id
+      ORDER BY date DESC
     ").to_a
   end 
 
