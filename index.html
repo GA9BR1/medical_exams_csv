@@ -63,7 +63,7 @@
                     <dd>{{test['result_date'].split('-').reverse().join('/')}}</dd>
                   </div>
                 </dl>
-                <span :id="'details-button-' + index" class="more-details" v-on:click="testDetails">Mais detalhes</span>
+                <span :id="'details-button-' + index" class="more-details" v-on:click="showTestDetails">Mais detalhes</span>
               </div>
               <div :id="'details-div-' + index" class="test-details hidden">
                 <dl class="details-dl">

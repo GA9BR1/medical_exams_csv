@@ -55,7 +55,6 @@ const app = Vue.createApp({
       const startIndex = (this.currentPage - 1) * this.itemsPerPage;
       const endIndex = startIndex + this.itemsPerPage;
       let result = this.listResult.slice(startIndex, endIndex);
-      console.log(result.length);
       if (result.length == 0 && this.totalPages == 0) {
         this.changePage = 0;
         return result; 
@@ -69,6 +68,7 @@ const app = Vue.createApp({
     await this.getData();
     this.loading_results = false;
   },
+
 
   methods: {
     async getData(){
@@ -112,6 +112,7 @@ const app = Vue.createApp({
         this.waiting_response = false;
         if (response.ok) {
           this.response_message = "Dados importados com sucesso";
+          await this.getData();
         }else{
           this.response_message = "Houve um erro na importação";
         }
@@ -120,7 +121,7 @@ const app = Vue.createApp({
       }
     },
 
-    testDetails(event){
+    showTestDetails(event){
       id_array = event.target.id.split('-');
       id_call = id_array[id_array.length - 1];
       simple_card_element = document.getElementById(`test-card-${id_call}`);
@@ -138,7 +139,29 @@ const app = Vue.createApp({
         simple_card_element.classList.add('test-card-simple-closed');
         details_element.classList.add('hidden');
         show_details_element.innerHTML = 'Mais detalhes';
+        opened_simple_test_cards = document.getElementsByClassName('test-card-simple-opened')
+        opened_test_cards = []
+        for (let i = 0; i < opened_simple_test_cards.length; i++){
+          let element = opened_simple_test_cards[i];
+          opened_test_cards.push(element.parentElement);
+        }
+        nearest_id = this.getNearestOpenedDetails(opened_simple_test_cards, id_call);
+        if(opened_test_cards.length != 0){
+          opened_test_cards[nearest_id].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } 
       }
+    },
+
+    getNearestOpenedDetails(opened_test_cards, id_call){
+      let nearest_id = 0;
+      let diff = 0;
+      for (let i = 0; i < opened_test_cards.length; i++) {
+        if((Math.abs(id_call -  i) < diff && Math.abs(id_call -  i) != 0) || i == 0) {
+          nearest_id = i;
+          diff = Math.abs(id_call - i);
+        }
+      }
+      return nearest_id;
     },
 
     showAlert(tt){
