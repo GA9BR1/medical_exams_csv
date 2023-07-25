@@ -12,7 +12,7 @@ Uma app web para listagem de exames médicos.
 * HTML
 * CSS
 * PostregreSQL
-
+* VueJs
 ---
 
 ### Premissa

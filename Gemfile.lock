@@ -8,6 +8,8 @@ GEM
     puma (6.3.0)
       nio4r (~> 2.0)
     rack (2.2.7)
+    rack-cors (2.0.1)
+      rack (>= 2.0.0)
     rack-protection (3.0.6)
       rack
     ruby2_keywords (0.0.5)
@@ -25,6 +27,7 @@ DEPENDENCIES
   pg
   puma
   rack
+  rack-cors
   sinatra
 
 BUNDLED WITH

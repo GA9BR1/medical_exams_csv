@@ -7,9 +7,21 @@ services:
     networks: 
       - 'rebase-labs'
     
-  ruby-sinatra:
+  ruby-app:
     image: ruby
-    command: bash -c "bundle install && rake create_tables_if_not_exist && ruby server.rb"
+    command: bash -c "bundle install && ruby server-2.rb"
+    working_dir: /app
+    networks:
+      - 'rebase-labs'
+    volumes:
+      - .:/app
+      - labs-gems:/usr/local/bundle
+    ports:
+      - "4000:4000"
+      
+  ruby-api:
+    image: ruby
+    command: bash -c "bundle install && rake create_tables_if_not_exist && ruby server-1.rb"
     working_dir: /app
     networks:
       - 'rebase-labs'
@@ -18,6 +30,7 @@ services:
       - labs-gems:/usr/local/bundle
     ports:
       - "3000:3000"
+      
 
 networks:
   rebase-labs:

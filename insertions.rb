@@ -1,6 +1,5 @@
 require 'pg'
 require 'json'
-require 'debug'
 class Insertions
   def self.insert_csv_data(file)
     db = PG.connect(host: 'postgres-server', user: 'postgres')
@@ -12,8 +11,6 @@ class Insertions
       self.insert_test_type_if_not_exists(object, db)
       self.insert_test_and_test_items_if_not_exist(object, db)
     end
-
-    puts 'AAAAAAAAAAAAAAAAA'
   end
 
   private
@@ -52,7 +49,7 @@ class Insertions
     def self.insert_test_type_if_not_exists(object, db)
       test_type_not_exists = db.exec_params('SELECT * FROM test_types WHERE name = $1', [object['tipo exame']]).num_tuples.zero?
       if test_type_not_exists
-        db.exec_params('INSERT INTO test_types (name, limits) VALUES ($1, $2) RETURNING id',
+        db.exec_params('INSERT INTO test_types (name, limits) VALUES ($1, $2)',
         [object['tipo exame'], object['limites tipo exame']])
       end
     end

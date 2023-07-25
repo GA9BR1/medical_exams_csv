@@ -7,7 +7,32 @@ const app = Vue.createApp({
       waiting_response: false,
       response_message: null,
       searchText: '',
-      loading_results: true
+      loading_results: true,
+      itemsPerPage: 4,
+      currentPage: 1,
+      changePage: 1
+    }
+  },
+
+  watch: {
+    searchText() {
+      this.currentPage = 1;
+    },
+    changePage(event) {
+      let value = event.target;
+      if (this.changePage < 1 && this.totalPages != 0) {
+        this.currentPage = 1;
+        this.changePage = 1;
+        return
+      } else if (this.changePage == 0 && this.totalPages == 0) {
+        this.changePage = 0;
+        return
+      } else if(this.changePage > this.totalPages) {
+        this.currentPage = this.totalPages;
+        this.changePage = this.totalPages;
+        return
+      }
+      this.currentPage = this.changePage;
     }
   },
 
@@ -22,6 +47,21 @@ const app = Vue.createApp({
       }else{
         return this.tests;
       }
+    },
+    totalPages() {
+      return Math.ceil(this.listResult.length / this.itemsPerPage);
+    },
+    paginatedData() {
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      let result = this.listResult.slice(startIndex, endIndex);
+      console.log(result.length);
+      if (result.length == 0 && this.totalPages == 0) {
+        this.changePage = 0;
+        return result; 
+      }
+      this.changePage = this.currentPage;
+      return result;
     }
   },
 
@@ -35,6 +75,19 @@ const app = Vue.createApp({
       let response = await fetch('http://localhost:3000/tests')
       data = await response.json();
       this.tests = data
+    },
+
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.changePage--;
+      }
+    },
+    nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        this.changePage++;
+      }
     },
 
     handleFileUpload(event){
@@ -51,10 +104,9 @@ const app = Vue.createApp({
 
       try {
         this.waiting_response = true;
-        console.log(this.waiting_response)
         let response = await fetch('http://localhost:3000/import', {
           method: 'POST',
-          body: formData,
+          body: formData
         });
         
         this.waiting_response = false;
@@ -69,23 +121,50 @@ const app = Vue.createApp({
     },
 
     testDetails(event){
-      id_array = event.target.id.split('-')
-      id_call = id_array[id_array.length - 1]
-      simple_card_element = document.getElementById(`test-card-${id_call}`)
-      details_element = document.getElementById(`details-div-${id_call}`)
-      show_details_element = event.target
+      id_array = event.target.id.split('-');
+      id_call = id_array[id_array.length - 1];
+      simple_card_element = document.getElementById(`test-card-${id_call}`);
+      details_element = document.getElementById(`details-div-${id_call}`);
+      test_card = document.getElementById(`test-card-general-${id_call}`);
+      show_details_element = event.target;
       if (simple_card_element.classList[0] === "test-card-simple-closed"){
         simple_card_element.classList.remove('test-card-simple-closed');
         simple_card_element.classList.add('test-card-simple-opened');
         details_element.classList.remove('hidden');
-        show_details_element.innerHTML = 'Recolher detalhes'
+        show_details_element.innerHTML = 'Recolher detalhes';
+        test_card.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {
-        simple_card_element.classList.remove('test-card-simple-opened')
-        simple_card_element.classList.add('test-card-simple-closed')
+        simple_card_element.classList.remove('test-card-simple-opened');
+        simple_card_element.classList.add('test-card-simple-closed');
         details_element.classList.add('hidden');
-        show_details_element.innerHTML = 'Mais detalhes'
+        show_details_element.innerHTML = 'Mais detalhes';
       }
-      console.log(simple_card_element)
+    },
+
+    showAlert(tt){
+      let limits = tt.limits.split('-');
+      let upper_limit = limits[1];
+      let bottom_limit = limits[0];
+      let result = tt.result;
+      let upper_difference = upper_limit - result;
+      let bottom_difference = result - bottom_limit;
+
+      return (upper_difference <= 5) || (bottom_difference <= 5)
+    },
+
+    getAlertIcon(tt){
+      let limits = tt.limits.split('-');
+      let upper_limit = limits[1];
+      let bottom_limit = limits[0];
+      let result = tt.result;
+      let upper_difference = upper_limit - result;
+      let bottom_difference = result - bottom_limit;
+
+      if ((upper_difference >= 0 && upper_difference <= 5) || (bottom_difference >= 0 && bottom_difference <= 5)) {
+        return 'aviso.png';
+      } else if (upper_difference < 0 || bottom_difference < 0) {
+        return 'warning.png';
+      }
     }
   }
 })
