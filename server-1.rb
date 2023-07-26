@@ -6,6 +6,9 @@ require 'logger'
 require_relative 'insertions'
 require_relative 'query_and_format'
 require 'rack/cors'
+require_relative 'worker'
+require_relative 'insertions'
+require 'sidekiq'
 
 use Rack::Cors do
   allow do
@@ -29,18 +32,8 @@ end
 
 post '/import' do
   file = params[:csvFile][:tempfile]
-
-  begin
-    Insertions.insert_csv_data(file)
-    headers 'Access-Control-Allow-Origin' => '*'
-    headers 'Access-Control-Allow-Methods' => 'POST', 'Access-Control-Allow-Headers' => 'Content-Type'
-    status 200
-  rescue => e
-    headers 'Access-Control-Allow-Origin' => '*'
-    headers 'Access-Control-Allow-Methods' => 'POST', 'Access-Control-Allow-Headers' => 'Content-Type'
-    status 400
-    body "Erro ao processar o arquivo: #{e.message}"
-  end
+  json_csv = Insertions.read_and_parse_csv_to_json(file)
+  Worker.perform_async(json_csv)
 end
  
 Rack::Handler::Puma.run(

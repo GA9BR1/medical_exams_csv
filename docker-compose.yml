@@ -6,31 +6,64 @@ services:
       POSTGRES_HOST_AUTH_METHOD: trust
     networks: 
       - 'rebase-labs'
+  redis:
+    image: redis
+    networks:
+      - 'rebase-labs'
     
+  sidekiq:
+    image: ruby
+    command: bash -c "bundle install && bundle exec sidekiq -r ./worker.rb"
+    working_dir: /app
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    networks:
+      - 'rebase-labs'
+    volumes:
+      - .:/app
+      - labs-gems:/usr/local/bundle
+    ports:
+      - "5000:5000"
+    depends_on:
+      - 'redis'
+
   ruby-app:
     image: ruby
     command: bash -c "bundle install && ruby server-2.rb"
     working_dir: /app
     networks:
       - 'rebase-labs'
+    environment:
+      REDIS_URL: redis://redis:6379/0
     volumes:
       - .:/app
       - labs-gems:/usr/local/bundle
     ports:
       - "4000:4000"
-      
+    depends_on:
+      - 'ruby-api'
+      - 'postgres-server'
+      - 'sidekiq'
+      - 'redis'
+
   ruby-api:
     image: ruby
     command: bash -c "bundle install && rake create_tables_if_not_exist && ruby server-1.rb"
     working_dir: /app
     networks:
       - 'rebase-labs'
+    environment:
+      REDIS_URL: redis://redis:6379/0
     volumes:
       - .:/app
       - labs-gems:/usr/local/bundle
     ports:
       - "3000:3000"
-      
+    depends_on: 
+      - 'postgres-server'
+      - 'sidekiq'
+      - 'redis'
+
 
 networks:
   rebase-labs:

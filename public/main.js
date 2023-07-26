@@ -111,7 +111,7 @@ const app = Vue.createApp({
         
         this.waiting_response = false;
         if (response.ok) {
-          this.response_message = "Dados importados com sucesso";
+          this.response_message = "Arquivo recebido pelo servidor";
           await this.getData();
         }else{
           this.response_message = "Houve um erro na importação";
@@ -144,7 +144,7 @@ const app = Vue.createApp({
         for (let i = 0; i < opened_simple_test_cards.length; i++){
           let element = opened_simple_test_cards[i];
           testcard_parent_element_id_split = element.parentElement.id.split('-');
-          opened_test_cards.push({[testcard_parent_element_id_split[testcard_parent_element_split.length - 1]]: element.parentElement});
+          opened_test_cards.push({[testcard_parent_element_id_split[testcard_parent_element_id_split.length - 1]]: element.parentElement});
         }
         nearest_index = this.getNearestOpenedDetails(opened_test_cards, id_call);
         if(opened_test_cards.length != 0){
