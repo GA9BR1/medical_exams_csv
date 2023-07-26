@@ -143,25 +143,29 @@ const app = Vue.createApp({
         opened_test_cards = []
         for (let i = 0; i < opened_simple_test_cards.length; i++){
           let element = opened_simple_test_cards[i];
-          opened_test_cards.push(element.parentElement);
+          testcard_parent_element_id_split = element.parentElement.id.split('-');
+          opened_test_cards.push({[testcard_parent_element_id_split[testcard_parent_element_split.length - 1]]: element.parentElement});
         }
-        nearest_id = this.getNearestOpenedDetails(opened_simple_test_cards, id_call);
+        nearest_index = this.getNearestOpenedDetails(opened_test_cards, id_call);
         if(opened_test_cards.length != 0){
-          opened_test_cards[nearest_id].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          Object.values(opened_test_cards[nearest_index])[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
         } 
       }
     },
 
-    getNearestOpenedDetails(opened_test_cards, id_call){
-      let nearest_id = 0;
+    getNearestOpenedDetails(opened_test_cards, id_call) {
+      let nearest_index = 0;
       let diff = 0;
-      for (let i = 0; i < opened_test_cards.length; i++) {
-        if((Math.abs(id_call -  i) < diff && Math.abs(id_call -  i) != 0) || i == 0) {
-          nearest_id = i;
-          diff = Math.abs(id_call - i);
+    
+      opened_test_cards.forEach(function(object, index){
+        const current_diff = Math.abs(id_call - Object.keys(object)[0]);
+        
+        if (current_diff < diff || index == 0) {
+          nearest_index = index;
+          diff = current_diff;
         }
-      }
-      return nearest_id;
+      });
+      return nearest_index;
     },
 
     showAlert(tt){

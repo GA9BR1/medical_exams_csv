@@ -11,6 +11,8 @@ class Insertions
       self.insert_test_type_if_not_exists(object, db)
       self.insert_test_and_test_items_if_not_exist(object, db)
     end
+    db.close
+    data
   end
 
   private

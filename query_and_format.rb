@@ -17,7 +17,7 @@ class QueryAndFormat
 
   def self.query_single_test(token)
     db = PG.connect(host: 'postgres-server', user: 'postgres')
-    db.exec("SELECT
+    data = db.exec("SELECT
       t.token AS result_token,
       t.date AS result_date, 
       p.cpf, 
@@ -43,11 +43,13 @@ class QueryAndFormat
       GROUP BY t.id, t.date, p.cpf, p.name, p.email, p.birthday, d.crm, d.crm_state, d.name, tt.name, tt.limits, ti.id
       ORDER BY date DESC
     ", [token]).to_a
+    db.close
+    data
   end
 
   def self.query_all_tests
     db = PG.connect(host: 'postgres-server', user: 'postgres')
-    db.exec("SELECT
+    data = db.exec("SELECT
       t.token AS result_token,
       t.date AS result_date, 
       p.cpf, 
@@ -72,6 +74,8 @@ class QueryAndFormat
       GROUP BY t.id, t.date, p.cpf, p.name, p.email, p.birthday, d.crm, d.crm_state, d.name, tt.name, tt.limits, ti.id
       ORDER BY date DESC
     ").to_a
+    db.close
+    data
   end 
 
   def self.format_to_json(data)
