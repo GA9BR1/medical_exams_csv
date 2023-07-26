@@ -32,8 +32,19 @@ end
 
 post '/import' do
   file = params[:csvFile][:tempfile]
-  json_csv = Insertions.read_and_parse_csv_to_json(file)
-  Worker.perform_async(json_csv)
+
+  begin
+    json_csv = Insertions.read_and_parse_csv_to_json(file)
+    Worker.perform_async(json_csv)
+    headers 'Access-Control-Allow-Origin' => '*'
+    headers 'Access-Control-Allow-Methods' => 'POST', 'Access-Control-Allow-Headers' => 'Content-Type'
+    status 200
+  rescue => e
+    headers 'Access-Control-Allow-Origin' => '*'
+    headers 'Access-Control-Allow-Methods' => 'POST', 'Access-Control-Allow-Headers' => 'Content-Type'
+    status 400
+    body "Erro ao processar o arquivo: #{e.message}"
+  end
 end
  
 Rack::Handler::Puma.run(
