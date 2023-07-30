@@ -16,7 +16,11 @@ class QueryAndFormat
   private 
 
   def self.query_single_test(token)
-    db = PG.connect(host: 'postgres-server', user: 'postgres')
+    if ENV['APP_ENV'] != 'test'
+      db = PG.connect(host: 'postgres-server', user: 'postgres')
+    else
+      db = PG.connect(host: 'postgres-server-test', user: 'postgres')
+    end
     data = db.exec("SELECT
       t.token AS result_token,
       t.date AS result_date, 
@@ -48,7 +52,11 @@ class QueryAndFormat
   end
 
   def self.query_all_tests
-    db = PG.connect(host: 'postgres-server', user: 'postgres')
+    if ENV['APP_ENV'] != 'test'
+      db = PG.connect(host: 'postgres-server', user: 'postgres')
+    else
+      db = PG.connect(host: 'postgres-server-test', user: 'postgres')
+    end
     data = db.exec("SELECT
       t.token AS result_token,
       t.date AS result_date, 

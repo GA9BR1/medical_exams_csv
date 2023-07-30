@@ -36,112 +36,127 @@
           </span>
         </span>
       </div>
-      <section class="tests-section">
-        <div class="input-div">
-          <h1>Exames</h1>
-          <input class="input-search" type="text" v-model="searchText" placeholder="Token, CPF, data do resultado">
+      <div class="processing-and-tests">
+        <div class="processing-ended">
+          <h4>Processamentos recentes concluídos</h4>
+          <div v-if="any_concluded_import == false">
+            <span class="processing-endend-text">Não há nenhum processamento recente concluído</span>
+          </div>
+          <div v-else>
+            <ul>
+              <li class="processed-item" v-for="processed, in concluded_imports">
+                <p class="processing-endend-text">{{processed[1]}}</p>
+              </li>
+            </ul>
+          </div>
         </div>
-        <ul class="tests-list"> 
-          <li v-for="test, index in paginatedData">
-            <div :id="'test-card-general-' + index" class="test-card">
-              <div :id="'test-card-' + index" class="test-card-simple-closed">
-                <dl>
-                  <div class="card-text-div">
-                    <dt>Token</dt>
-                    <dd>{{test['result_token']}}</dd>
-                  </div>
-                  <div class="card-text-div">
-                    <dt>Nome</dt>
-                    <dd>{{test['name']}}</dd>
-                  </div>
-                  <div class="card-text-div">
-                    <dt>CPF</dt>
-                    <dd>{{test['cpf']}}</dd>
-                  </div>
-                  <div class="card-text-div">
-                    <dt>Data do resultado</dt>
-                    <dd>{{test['result_date'].split('-').reverse().join('/')}}</dd>
-                  </div>
-                </dl>
-                <span :id="'details-button-' + index" class="more-details" v-on:click="showTestDetails">Mais detalhes</span>
+        <section class="tests-section">
+          <div class="input-div">
+            <h1>Exames</h1>
+            <input class="input-search" type="text" v-model="searchText" placeholder="Token, CPF, data do resultado">
+          </div>
+          <ul class="tests-list"> 
+            <li v-for="test, index in paginatedData">
+              <div :id="'test-card-general-' + index" class="test-card">
+                <div :id="'test-card-' + index" class="test-card-simple-closed">
+                  <dl>
+                    <div class="card-text-div">
+                      <dt>Token</dt>
+                      <dd>{{test['result_token']}}</dd>
+                    </div>
+                    <div class="card-text-div">
+                      <dt>Nome</dt>
+                      <dd>{{test['name']}}</dd>
+                    </div>
+                    <div class="card-text-div">
+                      <dt>CPF</dt>
+                      <dd>{{test['cpf']}}</dd>
+                    </div>
+                    <div class="card-text-div">
+                      <dt>Data do resultado</dt>
+                      <dd>{{test['result_date'].split('-').reverse().join('/')}}</dd>
+                    </div>
+                  </dl>
+                  <span :id="'details-button-' + index" class="more-details" v-on:click="showTestDetails">Mais detalhes</span>
+                </div>
+                <div :id="'details-div-' + index" class="test-details hidden">
+                  <dl class="details-dl">
+                    <div class="card-text-div">
+                      <dt>E-mail</dt>
+                      <dd>{{test['email']}}</dd>
+                    </div>
+                    <div class="card-text-div">
+                      <dt>Data de nascimento</dt>
+                      <dd>{{test['birthday'].split('-').reverse().join('/')}}</dd>
+                    </div>
+                    <div class="card-text-div">
+                      <dt>Médico(a)</dt>
+                      <dd>{{test['doctor']['name']}} - {{test['doctor']['crm']}}-{{test['doctor']['crm_state']}}</dd>
+                    </div>
+                  </dl>
+                  <div>
+                    <h3>Resultados do exame</h3>
+                    <table>
+                      <thead>
+                          <tr>
+                              <th></th>
+                              <th>Referência</th>
+                              <th>Resultado</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr v-for="tt in test['tests']">
+                              <td>{{tt['type']}}</td>
+                              <td class="center-td">{{tt['limits']}}</td>
+                              <td class="center-td result-td">
+                                <div class="result-img-div">
+                                  <span class="result-value-text">{{tt['result']}}</span>
+                                  <img v-if="showAlert(tt)" class="alert-icon-result" :src="getAlertIcon(tt)" alt="Ícone de alerta">
+                                </div>
+                              </td>
+                          </tr>
+                      </tbody>
+                    </table> 
+                  </div> 
+                </div>
               </div>
-              <div :id="'details-div-' + index" class="test-details hidden">
-                <dl class="details-dl">
-                  <div class="card-text-div">
-                    <dt>E-mail</dt>
-                    <dd>{{test['email']}}</dd>
-                  </div>
-                  <div class="card-text-div">
-                    <dt>Data de nascimento</dt>
-                    <dd>{{test['birthday'].split('-').reverse().join('/')}}</dd>
-                  </div>
-                  <div class="card-text-div">
-                    <dt>Médico(a)</dt>
-                    <dd>{{test['doctor']['name']}} - {{test['doctor']['crm']}}-{{test['doctor']['crm_state']}}</dd>
-                  </div>
-                </dl>
-                <div>
-                  <h3>Resultados do exame</h3>
-                  <table>
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Referência</th>
-                            <th>Resultado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="tt in test['tests']">
-                            <td>{{tt['type']}}</td>
-                            <td class="center-td">{{tt['limits']}}</td>
-                            <td class="center-td result-td">
-                              <div class="result-img-div">
-                                <span class="result-value-text">{{tt['result']}}</span>
-                                <img v-if="showAlert(tt)" class="alert-icon-result" :src="getAlertIcon(tt)" alt="Ícone de alerta">
-                              </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                  </table> 
-                </div> 
-              </div>
-            </div>
-          </li>
-          <h2 v-if="listResult.length === 0 && !loading_results" v-cloak>
-            Nenhum exame encontrado.
-          </h2>
-        </ul>
-        <div class="pagination">
-          <button class="left-button" v-on:click="prevPage" :disabled="currentPage === 1">
-            <svg class="left-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
-              <defs>
-                <clipPath>
-                  <path fill="#00f" fill-opacity=".514" d="m-7 1024.36h34v34h-34z"/>
-                </clipPath>
-                <clipPath>
-                  <path fill="#aade87" fill-opacity=".472" d="m-6 1028.36h32v32h-32z"/>
-                </clipPath>
-              </defs>
-              <path class="svg-left-path" d="m345.44 248.29l-194.29 194.28c-12.359 12.365-32.397 12.365-44.75 0-12.354-12.354-12.354-32.391 0-44.744l171.91-171.91-171.91-171.9c-12.354-12.359-12.354-32.394 0-44.748 12.354-12.359 32.391-12.359 44.75 0l194.29 194.28c6.177 6.18 9.262 14.271 9.262 22.366 0 8.099-3.091 16.196-9.267 22.373" transform="matrix(.03541-.00013.00013.03541 2.98 3.02)" fill="#4d4d4d"/>
-            </svg>
-          </button>
-          <button class="right-button" v-on:click="nextPage" :disabled="currentPage === totalPages || totalPages == 0">
-            <svg class="right-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
-              <defs>
-                <clipPath>
-                  <path fill="#00f" fill-opacity=".514" d="m-7 1024.36h34v34h-34z"/>
-                </clipPath>
-                <clipPath>
-                  <path fill="#aade87" fill-opacity=".472" d="m-6 1028.36h32v32h-32z"/>
-                </clipPath>
-              </defs>
-              <path class="svg-right-path" d="m345.44 248.29l-194.29 194.28c-12.359 12.365-32.397 12.365-44.75 0-12.354-12.354-12.354-32.391 0-44.744l171.91-171.91-171.91-171.9c-12.354-12.359-12.354-32.394 0-44.748 12.354-12.359 32.391-12.359 44.75 0l194.29 194.28c6.177 6.18 9.262 14.271 9.262 22.366 0 8.099-3.091 16.196-9.267 22.373" transform="matrix(.03541-.00013.00013.03541 2.98 3.02)" fill="#4d4d4d"/>
-            </svg>
-          </button>
-          <input class="input-page" type="number" v-model="changePage" min="1" :max="totalPages"><span> de {{totalPages}}</span>
-        </div>
-      </section>
-    </main>
+            </li>
+            <h2 v-if="listResult.length === 0 && !loading_results" v-cloak>
+              Nenhum exame encontrado.
+            </h2>
+          </ul>
+          <div class="pagination">
+            <button class="left-button" v-on:click="prevPage" :disabled="currentPage === 1">
+              <svg class="left-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
+                <defs>
+                  <clipPath>
+                    <path fill="#00f" fill-opacity=".514" d="m-7 1024.36h34v34h-34z"/>
+                  </clipPath>
+                  <clipPath>
+                    <path fill="#aade87" fill-opacity=".472" d="m-6 1028.36h32v32h-32z"/>
+                  </clipPath>
+                </defs>
+                <path class="svg-left-path" d="m345.44 248.29l-194.29 194.28c-12.359 12.365-32.397 12.365-44.75 0-12.354-12.354-12.354-32.391 0-44.744l171.91-171.91-171.91-171.9c-12.354-12.359-12.354-32.394 0-44.748 12.354-12.359 32.391-12.359 44.75 0l194.29 194.28c6.177 6.18 9.262 14.271 9.262 22.366 0 8.099-3.091 16.196-9.267 22.373" transform="matrix(.03541-.00013.00013.03541 2.98 3.02)" fill="#4d4d4d"/>
+              </svg>
+            </button>
+            <button class="right-button" v-on:click="nextPage" :disabled="currentPage === totalPages || totalPages == 0">
+              <svg class="right-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
+                <defs>
+                  <clipPath>
+                    <path fill="#00f" fill-opacity=".514" d="m-7 1024.36h34v34h-34z"/>
+                  </clipPath>
+                  <clipPath>
+                    <path fill="#aade87" fill-opacity=".472" d="m-6 1028.36h32v32h-32z"/>
+                  </clipPath>
+                </defs>
+                <path class="svg-right-path" d="m345.44 248.29l-194.29 194.28c-12.359 12.365-32.397 12.365-44.75 0-12.354-12.354-12.354-32.391 0-44.744l171.91-171.91-171.91-171.9c-12.354-12.359-12.354-32.394 0-44.748 12.354-12.359 32.391-12.359 44.75 0l194.29 194.28c6.177 6.18 9.262 14.271 9.262 22.366 0 8.099-3.091 16.196-9.267 22.373" transform="matrix(.03541-.00013.00013.03541 2.98 3.02)" fill="#4d4d4d"/>
+              </svg>
+            </button>
+            <input class="input-page" type="number" v-model="changePage" min="1" :max="totalPages"><span> de {{totalPages}}</span>
+          </div>
+        </section>
+      </main>
+    </div>
   </div>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <script src="main.js"></script>

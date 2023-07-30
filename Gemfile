@@ -1,10 +1,17 @@
 # frozen_string_literal: true
 
 source 'https://rubygems.org'
+gem 'pg'
 gem 'rack'
 gem 'sinatra'
 gem 'puma'
-gem 'pg'
 gem 'rack-cors'
 gem 'sidekiq'
 gem 'redis'
+gem 'capybara'
+gem 'rack-test'
+gem 'rspec'
+gem 'rake'
+gem 'sidekiq-status', '~> 3.0.3'
+gem 'activesupport'
+gem 'rspec-eventually'

@@ -10,7 +10,9 @@ const app = Vue.createApp({
       loading_results: true,
       itemsPerPage: 4,
       currentPage: 1,
-      changePage: 1
+      changePage: 1,
+      any_concluded_import: false,
+      concluded_imports: []
     }
   },
 
@@ -67,6 +69,9 @@ const app = Vue.createApp({
   async mounted(){
     await this.getData();
     this.loading_results = false;
+    setInterval(async () => {
+      await this.askForJobStatus();
+    }, 5000);
   },
 
 
@@ -111,7 +116,14 @@ const app = Vue.createApp({
         
         this.waiting_response = false;
         if (response.ok) {
+          job_id = await response.text()
           this.response_message = "Arquivo recebido pelo servidor";
+          let items = { ...localStorage };
+          let max_id = 0;
+          if (Object.keys(items).length > 0) {
+            max_id = this.storeJobIds(items, max_id)
+          }
+          localStorage.setItem(`job-id-${parseInt(max_id) + 1}`, job_id )
           await this.getData();
         }else{
           this.response_message = "Houve um erro na importação";
@@ -119,6 +131,63 @@ const app = Vue.createApp({
       } catch (error) {
         console.error(error)
       }
+    },
+
+    async askForJobStatus(){
+      let items = { ...localStorage }
+      let jobIds = []
+      if (Object.keys(items).length > 0) {
+        for (let i = 0; i < Object.keys(items).length; i++) {
+          jobIds.push(Object.values(items)[i])
+        }
+        try {
+          let response = await fetch('http://localhost:3000/status', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(jobIds)
+          });
+  
+          if (response.ok) {
+            items = {...localStorage}
+            body = await response.json();
+            const parsedBody = body.map(item => JSON.parse(item));
+            for (let i = 0; i < body.length; i++) {
+              if (Object.keys(items).length > 0) {
+                for (let j = 0; j < Object.keys(items).length; j++) {
+                  chave = Object.keys(items)[j]
+                  value = localStorage.getItem(chave)
+                  if (value == parsedBody[i][2]) {
+                    if (parsedBody[i][0] === 'Completed'){
+                      this.concluded_imports.push(parsedBody[i])
+                      localStorage.removeItem(chave)
+                      await this.getData()
+                    }
+                  }
+                }
+              }
+            }
+            
+            if (this.concluded_imports.length > 0) {
+              this.any_concluded_import = true;
+            }
+          }
+        } catch (e) {
+          console.error(e)
+        }
+      } 
+    },
+
+    storeJobIds(items, max_id){
+      for (let i = 0; i < Object.keys(items).length; i++) {
+        let last_item_splited = Object.keys(items)[i].split('-')
+        let last_job_index = last_item_splited[last_item_splited.length - 1]
+        if (last_job_index > max_id) {
+          max_id = last_job_index
+        } 
+      }
+      return max_id
     },
 
     showTestDetails(event){

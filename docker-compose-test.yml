@@ -1,0 +1,74 @@
+version: '3.9'
+services:
+  postgres-server-test:
+    image: postgres
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    networks: 
+      - 'rebase-labs-test'
+  redis:
+    image: redis
+    networks:
+      - 'rebase-labs-test'
+
+  sidekiq:
+    image: ruby
+    command: bash -c "bundle install && bundle exec sidekiq -r ./worker.rb"
+    working_dir: /app
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      APP_ENV: test
+    networks:
+      - 'rebase-labs-test'
+    volumes:
+      - .:/app
+      - labs-gems-test:/usr/local/bundle
+    ports:
+      - "5000:5000"
+    depends_on:
+      - 'redis'
+      
+  ruby-api:
+    image: ruby
+    command: bash -c "bundle install && ruby server-1.rb"
+    working_dir: /app
+    networks:
+      - 'rebase-labs-test'
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      APP_ENV: test
+    volumes:
+      - .:/app
+      - labs-gems-test:/usr/local/bundle
+    ports:
+      - "4567:4567"
+    depends_on: 
+      - 'postgres-server-test'
+      - 'sidekiq'
+      - 'redis'
+
+  ruby-app:
+    image: ruby
+    command: bash -c "bundle install && ruby server-2.rb"
+    working_dir: /app
+    networks:
+      - 'rebase-labs-test'
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      APP_ENV: test
+    volumes:
+      - .:/app
+      - labs-gems-test:/usr/local/bundle
+    ports:
+      - "4000:4000"
+    depends_on:
+      - 'ruby-api'
+      - 'postgres-server-test'
+      - 'sidekiq'
+      - 'redis'
+
+networks:
+  rebase-labs-test:
+
+volumes:
+  labs-gems-test:
