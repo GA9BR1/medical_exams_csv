@@ -18,6 +18,8 @@ Uma app web para listagem de exames médicos.
 ### Um pouco sobre as funcionalidades
 A aplicação é bem dinâmica, visto que é construída em Vue.js. Ao enviar um arquivo csv na aplicação para que ele seja importado, o arquivo será enfileirado pelo Sidekiq e assim que possível será processado, assim que o processamento for concluído, a aplicação avisará, e automaticamente carregará os novos dados importados. Também é possível ver os detalhes do exame através do botão de ver mais detalhes, os cards abrem e fecham dinamicamente. É possível relizar pesquisas de exames pelo seu Token, data do resultado ou CPF do paciente. A aplicação conta também com paginação para os exames, tornando a página mais concisa.
 
+OBS: A cada 5 segundos é feita uma request para a API de status com os ids de jobs armazenados no LocalStorage, portanto pode haver um delay na exibição de que o arquivo foi processado, e dos novos dados.
+
 ### Instruções para rodar o projeto
 
 * É necessário ter o Docker instalado na sua máquina
