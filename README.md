@@ -16,7 +16,7 @@ Uma app web para listagem de exames médicos.
 * Sidekiq
 ---
 ### Um pouco sobre as funcionalidades
-A aplicação é bem dinâmica, visto que é construída em Vue.js. Ao enviar um arquivo csv na aplicação para que ele seja importado, o arquivo será enfileirado pelo Sidekiq e assim que possível será processado, assim que o processamento for concluído, a aplicação avisará e automaticamente carregará os novos dados importados. Também é possível ver os detalhes do exame através do botão mais detalhes, os cards abrem e fecham dinamicamente. É possível relizar pesquisas de exames pelo seu Token, data do resultado ou CPF do paciente. A aplicação conta também com paginação para os exames, tornando a página mais concisa.
+A aplicação é bem dinâmica, visto que é construída em Vue.js. Ao enviar um arquivo csv na aplicação para que ele seja importado, o arquivo será enfileirado pelo Sidekiq e assim que possível será processado, assim que o processamento for concluído, a aplicação avisará, e automaticamente carregará os novos dados importados. Também é possível ver os detalhes do exame através do botão de ver mais detalhes, os cards abrem e fecham dinamicamente. É possível relizar pesquisas de exames pelo seu Token, data do resultado ou CPF do paciente. A aplicação conta também com paginação para os exames, tornando a página mais concisa.
 
 ### Instruções para rodar o projeto
 
@@ -52,6 +52,93 @@ Use o seguinte comando para limpar todos os volumes da app de testes
 ```
 docker compose -f docker-compose-test.yml down --volumes
 ```
+
+### Endpoints
+* /tests | server-1 -> 
+Retorna um JSON com todos os exames e seus detalhes.
+```
+[
+  {
+    "result_token": "85OIFQ",
+    "result_date": "2022-03-27",
+    "cpf": "071.868.284-00",
+    "name": "Dra. Vitória Soares",
+    "email": "michale.huel@lynch.io",
+    "birthday": "1963-09-29",
+    "doctor": {
+      "crm": "B0002W2RBG",
+      "crm_state": "CE",
+      "name": "Dra. Isabelly Rêgo"
+    },
+    "tests": [
+      {
+        "type": "plaquetas",
+        "limits": "11-93",
+        "result": 50
+      },
+    ...
+```
+---
+* /tests/:token | server-1 -> 
+Retorna um JSON com todas as informações de um único exame
+```
+{
+  "result_token": "5UP5FA",
+  "result_date": "2022-03-27",
+  "cpf": "081.878.172-67",
+  "name": "Emanuel Beltrão Neto",
+  "email": "jennine@mosciski-swaniawski.co",
+  "birthday": "1989-10-28",
+  "doctor": {
+    "crm": "B000B7CDX4",
+    "crm_state": "SP",
+    "name": "Sra. Calebe Louzada"
+  },
+  "tests": [
+    {
+      "type": "ácido úrico",
+      "limits": "15-61",
+      "result": 25
+    },
+    ...
+```
+---
+* /import | server-1 -> 
+Recebe um arquivo csv com um formato específico explificado abaixo,
+enfilera o job no Sidekiq e retorna o status se foi ou não enfileirado no caso
+de status 200 também retorna o id do job no body.
+
+Exemplo de formato do csv
+```
+cpf;nome paciente;email paciente;data nascimento paciente;endereço/rua paciente;cidade paciente;estado patiente;crm médico;crm médico estado;nome médico;email médico;token resultado exame;data exame;tipo exame;limites tipo exame;resultado tipo exame
+048.973.170-88;Emilly Batista Neto;gerald.crona@ebert-quigley.com;2001-03-11;165 Rua Rafaela;Ituverava;Alagoas;B000BJ20J4;PI;Maria Luiza Pires;denna@wisozk.biz;IQCZ17;2021-08-05;hemácias;45-52;97
+```
+Exemplo de uma response da api
+```
+97c96ea8852bf3a7270cf696
+```
+---
+* /status | server-1 ->
+Recebe um array de ids de jobs, puxa os status de cada id de job formata e responde um JSON,
+contendo o status, o nome do arquivo e o id do job.
+
+Exemplo de uma request
+```
+["97c96ea8852bf3a7270cf696", "010801f838df362ec7f39f7"]
+```
+Exemplo de response
+```
+[
+  "[\"Completed\",\"data.csv\",\"97c96ea8852bf3a7270cf696\"]"
+  "[\"Completed\",\"data2.csv\",\"3010801f838df362ec7f39f7\"]"
+]
+```
+---
+* '/' | server-2 ->
+Exibe a página principal da aplicação, onde é possível interagir com as endpoints do server-1
+ 
+![Captura de tela 2023-07-31 041348](https://github.com/GA9BR1/medical_exams_csv/assets/91296759/151405ff-a59f-45c1-b4c4-e00c1b1eeab7)
+
 
 ---
 ### Estrutura do banco de dados
