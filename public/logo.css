@@ -19,8 +19,8 @@
 }
 
 .img{
+    margin-left: 8px;
     position: absolute;
-    width: 56px;
     height: 53px;
     left: 205px;
     top: 5px;
