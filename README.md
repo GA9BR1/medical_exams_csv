@@ -139,7 +139,7 @@ Exemplo de response
 * '/' | server-2 ->
 Exibe a página principal da aplicação, onde é possível interagir com as endpoints do server-1
  
-![Captura de tela 2023-07-31 041348](https://github.com/GA9BR1/medical_exams_csv/assets/91296759/151405ff-a59f-45c1-b4c4-e00c1b1eeab7)
+![Captura de tela de 2023-10-26 23-43-36](https://github.com/GA9BR1/medical_exams_csv/assets/91296759/39e76561-dc1a-403f-8841-38407cafcd86)
 
 
 ---
